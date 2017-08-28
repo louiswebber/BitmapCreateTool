@@ -1,0 +1,2 @@
+---- IDD_BITMAPCREATETOOL_DIALOG Matches (1 in 1 files) ----
+BitmapCreateToolDlg.h (bitmapcreatetool\bitmapcreatetool):	enum { IDD = IDD_BITMAPCREATETOOL_DIALOG };
