@@ -11,6 +11,7 @@
 #define new DEBUG_NEW
 #endif
 
+#define TIMER1	0x0001
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -60,7 +61,6 @@ void CBitmapCreateToolDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SAVE_CONFIG_BUTTON, saveConfigButton);
 	DDX_Control(pDX, IDC_CLEAR_ALL_WORD, clearWordButton);
 	DDX_Control(pDX, IDC_SELECT_LED_NUM, selectLedNumComboBox);
-	DDX_Control(pDX, IDC_SELECT_USER_FONT, slectUsrFontEditBrowse);
 	DDX_Control(pDX, IDC_EDIT_USR_FONT, editUsrFontButton);
 	DDX_Control(pDX, IDC_SCAN_DIRECTION, scanDirectButton);
 	DDX_Control(pDX, IDC_EXPORT_ASM, exportAsmFile);
@@ -78,12 +78,15 @@ BEGIN_MESSAGE_MAP(CBitmapCreateToolDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_SCAN_DIRECTION, &CBitmapCreateToolDlg::OnBnClickedScanDirection)
 	ON_BN_CLICKED(IDC_EDIT_USR_FONT, &CBitmapCreateToolDlg::OnBnClickedEditUsrFont)
 	ON_BN_CLICKED(IDC_EXPORT_ASM, &CBitmapCreateToolDlg::OnBnClickedExportAsm)
+	ON_BN_CLICKED(IDC_RADIO_USR_FONT_USE_FLAG, &CBitmapCreateToolDlg::OnBnClickedRadioUsrFontUseFlag)
+	ON_BN_CLICKED(IDC_RADIO2, &CBitmapCreateToolDlg::OnBnClickedRadio2)
+	ON_WM_TIMER()
 	ON_WM_VSCROLL()
 END_MESSAGE_MAP()
 
 
 // CBitmapCreateToolDlg 消息处理程序
-
+CDialog dlgWordEnter;
 BOOL CBitmapCreateToolDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -113,23 +116,7 @@ BOOL CBitmapCreateToolDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
-	((CScrollBar*)GetDlgItem(IDC_SCROLLBAR1))->SetScrollRange(0, 100);
-	//scollbar.SetScrollRange(0, 100);
-	CMenu* pMenu = new CMenu;
-	pMenu->LoadMenu(IDR_MENU2); //载入菜单资源
-	((CMFCMenuButton*)GetDlgItem(IDC_MFCMENUBUTTON1))->m_hMenu = pMenu->GetSubMenu(0)->GetSafeHmenu();
-	((CMFCMenuButton*)GetDlgItem(IDC_MFCMENUBUTTON1))->SizeToContent();
-	((CMFCMenuButton*)GetDlgItem(IDC_MFCMENUBUTTON1))->m_bOSMenu = FALSE;
-
-
-	CMenu* pMenu2 = new CMenu;
-	pMenu2->LoadMenu(IDR_MENU3); //载入菜单资源
-	((CMFCMenuButton*)GetDlgItem(IDC_MFCMENUBUTTON12))->m_hMenu = pMenu2->GetSubMenu(0)->GetSafeHmenu();
-	((CMFCMenuButton*)GetDlgItem(IDC_MFCMENUBUTTON12))->SizeToContent();
-	((CMFCMenuButton*)GetDlgItem(IDC_MFCMENUBUTTON12))->m_bOSMenu = FALSE;
-
-	((CComboBox*)GetDlgItem(IDC_SELECT_LED_NUM))->SelectString(-1,_T("11Led"));
+	SetTimer(TIMER1,100,NULL);//
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -171,6 +158,21 @@ void CBitmapCreateToolDlg::OnPaint()
 	}
 	else
 	{
+#if 0
+		CRect rect;
+		((CEdit*)(GetDlgItem(IDC_EDIT1)))->GetWindowRect(rect);
+		//ClientToScreen(rect);
+		dlgWordEnter.Create(IDD_DIALOG1,this);
+		dlgWordEnter.MoveWindow(rect);  
+		dlgWordEnter.ShowWindow(SW_SHOW);
+		SCROLLINFO si;
+		si.cbSize	= sizeof (SCROLLINFO) ;
+		si.fMask	= SIF_RANGE;
+		si.nPos	= rect.top;
+		si.nMin	= rect.top ;
+		si.nMax	= rect.bottom;
+		((CDialog*)GetDlgItem(IDD_DIALOG1))->SetScrollInfo(SB_VERT,&si,1);
+#endif
 		CDialogEx::OnPaint();
 	}
 }
@@ -252,198 +254,78 @@ void CBitmapCreateToolDlg::OnBnClickedExportAsm()
 	// TODO: 在此添加控件通知处理程序代码
 }
 
+void CBitmapCreateToolDlg::OnBnClickedRadioUsrFontUseFlag()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CBitmapCreateToolDlg::OnBnClickedRadio2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CBitmapCreateToolDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+		CRect rect;
+
+		((CEdit*)(GetDlgItem(IDC_EDIT1)))->GetWindowRect(rect);
+#if 1	
+		//ClientToScreen(rect);
+		dlgWordEnter.Create(IDD_DIALOG1,this);
+		dlgWordEnter.MoveWindow(rect);  
+		dlgWordEnter.ShowWindow(SW_SHOW);
+#endif
+		SCROLLINFO si;
+		((CEdit*)(GetDlgItem(IDC_SCROLLBAR1)))->GetWindowRect(rect);
+		si.cbSize	= sizeof (SCROLLINFO) ;
+		si.fMask	= SIF_RANGE|SIF_POS;
+		si.nPos	= rect.top;
+		si.nMin	= rect.top ;
+		si.nMax	= rect.bottom;
+		((CScrollBar*)GetDlgItem(IDC_SCROLLBAR1))->SetScrollInfo(&si,1);
+	KillTimer(nIDEvent);
+	CDialogEx::OnTimer(nIDEvent);
+}
+
+
 
 void CBitmapCreateToolDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	int nMin,nMax,nCurpos,step = 0;
-
-	pScrollBar->GetScrollRange(&nMin,&nMax);
-	nCurpos	= pScrollBar->GetScrollPos();
+	int scrollCurPos	= 0;
+	SCROLLINFO si;
+	CRect rect;
+	scrollCurPos	= ((CScrollBar*)GetDlgItem(IDC_SCROLLBAR1))->GetScrollPos();
+	((CScrollBar*)GetDlgItem(IDC_SCROLLBAR1))->GetScrollInfo(&si,SIF_ALL);
 
 	
-	switch(nSBCode)
-	{  
-		case SB_LINEUP:
-			step	=  -1;
-			break;     
-		case SB_LINEDOWN:  
-			step	=  1;
-			break;
-		case SB_THUMBTRACK:
-			step = nPos - nCurpos;
-			//nCurpos = nPos;
-			break;  
-	}
-
-	nCurpos	+= step;
-	pScrollBar->SetScrollPos(nCurpos); 
-#if 1
-	//for (int i = 0; i < 11; i++)
+	//((CEdit*)(GetDlgItem(IDC_EDIT1)))->GetWindowRect(rect);
+	ScreenToClient(rect);
+	switch (nSBCode)
 	{
-		CRect m_rect, rect;
-		int pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT5))->GetWindowRect(&m_rect);
-		((CEdit*)GetDlgItem(IDC_EDIT15))->GetWindowRect(&rect);
-		pixelStep	= (rect.bottom - m_rect.top) / 100;
-
-		((CEdit*)GetDlgItem(IDC_STATIC))->GetWindowRect(&rect);
-		ScreenToClient(rect);
-
-		((CEdit*)GetDlgItem(IDC_EDIT5))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT5))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT5))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT5))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT6))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT6))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT6))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT6))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT7))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT7))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT7))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT7))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT8))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT8))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT8))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT8))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT9))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT9))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT9))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT9))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT10))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT10))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT10))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT10))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT11))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT11))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT11))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT11))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT12))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT12))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT12))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT12))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT13))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT13))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT13))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT13))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT14))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT14))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT14))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT14))->ShowWindow(TRUE);
-		}
-
-		((CEdit*)GetDlgItem(IDC_EDIT15))->GetWindowRect(&m_rect);
-		ScreenToClient(m_rect);
-		m_rect.top		-= step * pixelStep;
-		m_rect.bottom	-= step * pixelStep;
-		((CEdit*)GetDlgItem(IDC_EDIT15))->MoveWindow(m_rect);
-		if (m_rect.bottom >= rect.bottom || m_rect.top <= rect.top)
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT15))->ShowWindow(FALSE);
-		}
-		else
-		{
-			((CEdit*)GetDlgItem(IDC_EDIT15))->ShowWindow(TRUE);
-		}
+	case SB_LINEDOWN:
+		dlgWordEnter.ScrollWindow( 0,-2,NULL,NULL);
+		scrollCurPos	+= 2;
+		break;
+	case SB_LINEUP:
+		scrollCurPos	-= 2;
+		dlgWordEnter.ScrollWindow( 0,2,NULL,NULL);
+		break;
+	case SB_THUMBPOSITION:
+	case SB_THUMBTRACK:
+		dlgWordEnter.ScrollWindow( 0,scrollCurPos - si.nTrackPos,NULL,NULL);
+		scrollCurPos	= si.nTrackPos;
+		break;
+	case SB_ENDSCROLL:
+		break;
+	default :
+		break;
 	}
-#endif
+	((CScrollBar*)GetDlgItem(IDC_SCROLLBAR1))->SetScrollPos(scrollCurPos);
 	CDialogEx::OnVScroll(nSBCode, nPos, pScrollBar);
 }
+

@@ -42,7 +42,7 @@ public:
 	afx_msg void OnBnClickedClearAllWord();
 	CComboBox selectLedNumComboBox;
 	afx_msg void OnCbnSelchangeSelectLedNum();
-	CMFCEditBrowseCtrl slectUsrFontEditBrowse;
+
 	afx_msg void OnEnChangeSelectUserFont();
 	CButton scanDirectButton;
 	afx_msg void OnBnClickedScanDirection();
@@ -51,5 +51,8 @@ public:
 	CButton exportAsmFile;
 	afx_msg void OnBnClickedExportAsm();
 	CScrollBar scollbar;
+	afx_msg void OnBnClickedRadioUsrFontUseFlag();
+	afx_msg void OnBnClickedRadio2();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 };
