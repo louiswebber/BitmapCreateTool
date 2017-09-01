@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "BitmapCreateTool.h"
 #include "BitmapCreateToolDlg.h"
+#include "InitUsrFontDispList.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -82,11 +83,13 @@ BEGIN_MESSAGE_MAP(CBitmapCreateToolDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RADIO2, &CBitmapCreateToolDlg::OnBnClickedRadio2)
 	ON_WM_TIMER()
 	ON_WM_VSCROLL()
+	ON_WM_MOVE()
+	ON_MESSAGE(CHILD_DLG_MENUBTN_SELECTMSG, &CBitmapCreateToolDlg::OnChildDlgMenubtnSelectmsg)
 END_MESSAGE_MAP()
 
 
 // CBitmapCreateToolDlg 消息处理程序
-CDialog dlgWordEnter;
+
 BOOL CBitmapCreateToolDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -116,7 +119,38 @@ BOOL CBitmapCreateToolDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
+#if 0
 	SetTimer(TIMER1,100,NULL);//
+#else
+	{
+		//创建文字编辑子对话框
+		CRect rect;
+		((CEdit*)(GetDlgItem(IDC_EDIT1)))->GetWindowRect(rect);
+		dlgWordEnter.Create(IDD_DIALOG1,this);
+		dlgWordEnter.MoveWindow(rect); 
+		dlgWordEnter.InitDialog();
+		dlgWordEnter.ShowWindow(SW_SHOW);
+	}
+
+	{
+		//创建滚动条，并设置滚动范围为 编辑框总高度 - 可视高度的差值
+		CRect rect;
+		SCROLLINFO si;
+		si.cbSize	= sizeof (SCROLLINFO) ;
+		si.fMask	= SIF_RANGE|SIF_POS;
+		si.nPos	= 0;
+		si.nMin	= 0 ;
+
+		((CEdit*)(dlgWordEnter.GetDlgItem(IDC_EDIT15)))->GetWindowRect(rect);
+		si.nMax	= rect.bottom;
+		((CEdit*)(dlgWordEnter.GetDlgItem(IDC_EDIT5)))->GetWindowRect(rect);
+		si.nMax	-= rect.top;
+		((CEdit*)(GetDlgItem(IDC_EDIT1)))->GetWindowRect(rect);
+		si.nMax	= si.nMax - (rect.bottom - rect.top) + 30;
+
+		((CScrollBar*)GetDlgItem(IDC_SCROLLBAR1))->SetScrollInfo(&si,1);
+	}
+#endif
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -158,21 +192,6 @@ void CBitmapCreateToolDlg::OnPaint()
 	}
 	else
 	{
-#if 0
-		CRect rect;
-		((CEdit*)(GetDlgItem(IDC_EDIT1)))->GetWindowRect(rect);
-		//ClientToScreen(rect);
-		dlgWordEnter.Create(IDD_DIALOG1,this);
-		dlgWordEnter.MoveWindow(rect);  
-		dlgWordEnter.ShowWindow(SW_SHOW);
-		SCROLLINFO si;
-		si.cbSize	= sizeof (SCROLLINFO) ;
-		si.fMask	= SIF_RANGE;
-		si.nPos	= rect.top;
-		si.nMin	= rect.top ;
-		si.nMax	= rect.bottom;
-		((CDialog*)GetDlgItem(IDD_DIALOG1))->SetScrollInfo(SB_VERT,&si,1);
-#endif
 		CDialogEx::OnPaint();
 	}
 }
@@ -269,25 +288,6 @@ void CBitmapCreateToolDlg::OnBnClickedRadio2()
 void CBitmapCreateToolDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-
-		CRect rect;
-
-		((CEdit*)(GetDlgItem(IDC_EDIT1)))->GetWindowRect(rect);
-#if 1	
-		//ClientToScreen(rect);
-		dlgWordEnter.Create(IDD_DIALOG1,this);
-		dlgWordEnter.MoveWindow(rect);  
-		dlgWordEnter.ShowWindow(SW_SHOW);
-#endif
-		SCROLLINFO si;
-		((CEdit*)(GetDlgItem(IDC_SCROLLBAR1)))->GetWindowRect(rect);
-		si.cbSize	= sizeof (SCROLLINFO) ;
-		si.fMask	= SIF_RANGE|SIF_POS;
-		si.nPos	= rect.top;
-		si.nMin	= rect.top ;
-		si.nMax	= rect.bottom;
-		((CScrollBar*)GetDlgItem(IDC_SCROLLBAR1))->SetScrollInfo(&si,1);
-	KillTimer(nIDEvent);
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -303,17 +303,22 @@ void CBitmapCreateToolDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrol
 	((CScrollBar*)GetDlgItem(IDC_SCROLLBAR1))->GetScrollInfo(&si,SIF_ALL);
 
 	
-	//((CEdit*)(GetDlgItem(IDC_EDIT1)))->GetWindowRect(rect);
-	ScreenToClient(rect);
+
 	switch (nSBCode)
 	{
 	case SB_LINEDOWN:
-		dlgWordEnter.ScrollWindow( 0,-2,NULL,NULL);
-		scrollCurPos	+= 2;
+		if(scrollCurPos < si.nMax)
+		{
+			dlgWordEnter.ScrollWindow( 0,-1,NULL,NULL);
+			scrollCurPos	+= 1;
+		}
 		break;
 	case SB_LINEUP:
-		scrollCurPos	-= 2;
-		dlgWordEnter.ScrollWindow( 0,2,NULL,NULL);
+		if(scrollCurPos > si.nMin)
+		{
+			dlgWordEnter.ScrollWindow( 0,1,NULL,NULL);
+			scrollCurPos	-= 1;
+		}
 		break;
 	case SB_THUMBPOSITION:
 	case SB_THUMBTRACK:
@@ -329,3 +334,21 @@ void CBitmapCreateToolDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrol
 	CDialogEx::OnVScroll(nSBCode, nPos, pScrollBar);
 }
 
+void CBitmapCreateToolDlg::OnMove(int x, int y)
+{
+	CDialogEx::OnMove(x, y);
+
+	// TODO: 在此处添加消息处理程序代码
+	CRect rect;
+	//创建文字编辑子对话框
+	((CEdit*)(GetDlgItem(IDC_EDIT1)))->GetWindowRect(rect);
+	dlgWordEnter.MoveWindow(rect); 
+}
+
+
+afx_msg LRESULT CBitmapCreateToolDlg::OnChildDlgMenubtnSelectmsg(WPARAM wParam, LPARAM lParam)
+{
+	int dir = wParam;
+	int data = lParam;
+	return 0;
+}

@@ -6,6 +6,7 @@
 #include "afxwin.h"
 #include "afxeditbrowsectrl.h"
 #include "DlgFontEdit.h"
+#include "DlgEditWord.h"
 
 // CBitmapCreateToolDlg ¶Ô»°¿ò
 class CBitmapCreateToolDlg : public CDialogEx
@@ -34,6 +35,8 @@ protected:
 public:
 	char *usrFontName;
 
+	CDlgEditWord dlgWordEnter;
+
 	CButton openConfig;
 	afx_msg void OnBnClickedOpenFileButton();
 	CButton saveConfigButton;
@@ -55,4 +58,7 @@ public:
 	afx_msg void OnBnClickedRadio2();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnMove(int x, int y);
+protected:
+	afx_msg LRESULT OnChildDlgMenubtnSelectmsg(WPARAM wParam, LPARAM lParam);
 };

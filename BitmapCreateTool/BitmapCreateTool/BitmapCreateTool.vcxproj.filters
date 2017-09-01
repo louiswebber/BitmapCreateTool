@@ -36,6 +36,12 @@
     <ClInclude Include="DlgFontEdit.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DlgEditWord.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="InitUsrFontDispList.h">
+      <Filter>源文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BitmapCreateTool.cpp">
@@ -51,6 +57,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DlgFontEdit.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DlgEditWord.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

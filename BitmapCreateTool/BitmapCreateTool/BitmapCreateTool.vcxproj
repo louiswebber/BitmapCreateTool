@@ -103,7 +103,9 @@
   <ItemGroup>
     <ClInclude Include="BitmapCreateTool.h" />
     <ClInclude Include="BitmapCreateToolDlg.h" />
+    <ClInclude Include="DlgEditWord.h" />
     <ClInclude Include="DlgFontEdit.h" />
+    <ClInclude Include="InitUsrFontDispList.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -111,6 +113,7 @@
   <ItemGroup>
     <ClCompile Include="BitmapCreateTool.cpp" />
     <ClCompile Include="BitmapCreateToolDlg.cpp" />
+    <ClCompile Include="DlgEditWord.cpp" />
     <ClCompile Include="DlgFontEdit.cpp" />
     <ClCompile Include="InitUsrFontDispList.cpp" />
     <ClCompile Include="stdafx.cpp">
